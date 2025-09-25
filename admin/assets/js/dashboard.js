@@ -24,7 +24,7 @@ async function loadDashboardstatus() {
       document.getElementById("newLeads").textContent = data.newLeads || "0";
       document.getElementById("newOrders").textContent =
         data.newOrders || "0";
-      document.getElementById("revenue").textContent = `$${data.revenue || "0"}`;
+      document.getElementById("revenue").textContent = `${data.revenue || "0"}`;
     }
   } catch (error) {
     console.error("Error loading dashboard status:", error);

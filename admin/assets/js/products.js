@@ -28,7 +28,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                     <td>${index + 1}</td>
                     <td>${product.title}</td>
                     <td>${product.category || "-"}</td>
-                    <td>$${product.price}</td>
+                    <td>${product.price}</td>
                     <td>${product.stock}</td>
                     <td>${product.featured ? "Yes" : "No"}</td>
                     <td>

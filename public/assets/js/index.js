@@ -463,7 +463,7 @@ async function renderBestSellers() {
             <div class="product-info">
               <div class="product-category">${product.category}</div>
               <h4 class="product-name"><a href="product-details.html">${product.title}</a></h4>
-              <div class="product-price">$${product.price}</div>
+              <div class="product-price">${product.price}</div>
             </div>
           </div>
         </div>
@@ -553,8 +553,8 @@ async function loadCardProducts() {
                                         <a href="product-details.html?slug=${product.slug}" style="color:#1f2937;">${product.title}</a>
                                     </h4>
                                     <div class="product-price" style="font-weight:600; color:#111;">
-                                        ${product.oldPrice ? `<span class="old-price" style="text-decoration: line-through; margin-right:5px;">$${product.oldPrice}</span>` : ''}
-                                        <span class="current-price">$${product.price}</span>
+                                        ${product.oldPrice ? `<span class="old-price" style="text-decoration: line-through; margin-right:5px;">${product.oldPrice}</span>` : ''}
+                                        <span class="current-price">${product.price}</span>
                                     </div>
                                 </div>
                             </div>

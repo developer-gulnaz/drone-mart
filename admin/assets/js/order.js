@@ -51,7 +51,7 @@ function renderOrdersTable(orders) {
             <td>${order.user ? order.user.firstName + " " + order.user.lastName : "-"}</td>
             <td>${order.user ? order.user.mobile : "-"}</td>
             <td>${order.items.map(item => item.title).join(", ") || "-"}</td>
-            <td>$${order.total || "0"}</td>
+            <td>${order.total || "0"}</td>
             <td>${order.paymentMethod || "-"}</td>
             <td>
                 <span class=" update-order-status badge ${getOrderStatusBadgeClass(order.status)} me-2">
