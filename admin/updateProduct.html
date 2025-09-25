@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DroneMart Admin Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/style.css">
+
+</head>
+
+<body>
+
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h4>DroneMart Admin</h4>
+            <button class="sidebar-toggle" id="sidebarToggle">
+                <i class="bi bi-arrow-left-circle"></i>
+            </button>
+        </div>
+        <ul class="sidebar-menu">
+            <li>
+                <a href="dashboard.html" class="active">
+                    <i class="bi bi-speedometer2"></i>
+                    <span class="menu-text">Dashboard</span>
+                </a>
+            </li>
+            <li>
+                <a href="users.html">
+                    <i class="bi bi-people"></i>
+                    <span class="menu-text">Users</span>
+                </a>
+            </li>
+            <li>
+                <a href="leads.html">
+                    <i class="bi bi-people-fill"></i>
+                    <span class="menu-text">Leads</span>
+                </a>
+            </li>
+            <li>
+                <a href="products.html">
+                    <i class="bi bi-cart"></i>
+                    <span class="menu-text">Products</span>
+                </a>
+            </li>
+            <li>
+                <a href="orders.html">
+                    <i class="bi bi-cart"></i>
+                    <span class="menu-text">Orders</span>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <i class="bi bi-graph-up"></i>
+                    <span class="menu-text">Analytics</span>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <i class="bi bi-gear"></i>
+                    <span class="menu-text">Settings</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+        <!-- Topbar / Header -->
+        <div class="topbar">
+            <button class="hamburger" id="hamburger">
+                <i class="bi bi-list"></i>
+            </button>
+            <h4 class="mb-0">Update Product</h4>
+            <div class="profile p-3" id="profileToggle">
+                <div class="d-flex align-items-center">
+                    <img src="https://ui-avatars.com/api/?name=User&background=random" alt="Profile"
+                        class="rounded-circle me-2" width="40" height="40">
+                    <div class="d-none d-md-block">
+                        <div class="fw-bold" id="adminName">User</div>
+                        <small class="text-muted" id="userType">Guest</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Dropdown -->
+            <div class="profile-dropdown" id="profileDropdown">
+                <div class="dropdown-item">
+                    <i class="bi bi-person"></i> Profile
+                </div>
+                <div class="dropdown-item">
+                    <i class="bi bi-gear"></i> Settings
+                </div>
+                <div class="dropdown-item">
+                    <i class="bi bi-bell"></i> Notifications
+                </div>
+                <hr>
+                <div class="dropdown-item" id="logoutBtn">
+                    <i class="bi bi-box-arrow-right"></i> Logout
+                </div>
+            </div>
+        </div>
+
+        <div class="container my-4">
+            <form id="productForm" enctype="multipart/form-data">
+                <div class="row g-3">
+
+                    <!-- Product Name -->
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <input type="text" class="form-control" id="title" name="title" placeholder="Product Name"
+                                required>
+                            <label for="title">Product Name</label>
+                        </div>
+                    </div>
+
+                    <!-- Category -->
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <input type="text" class="form-control" id="category" name="category" placeholder="Category"
+                                required>
+                            <label for="category">Category</label>
+                        </div>
+                    </div>
+
+                    <!-- Price -->
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <input type="number" class="form-control" id="price" name="price" placeholder="Price"
+                                required>
+                            <label for="price">Price ($)</label>
+                        </div>
+                    </div>
+
+                    <!-- Stock -->
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <input type="number" class="form-control" id="stock" name="stock" placeholder="Stock"
+                                required>
+                            <label for="stock">Stock</label>
+                        </div>
+                    </div>
+
+                    <!-- Badge -->
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <input type="text" class="form-control" id="badge" name="badge" placeholder="Badge">
+                            <label for="badge">Badge</label>
+                        </div>
+                    </div>
+
+                    <!-- Rating -->
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <input type="number" step="0.1" max="5" class="form-control" id="rating" name="rating"
+                                placeholder="Rating">
+                            <label for="rating">Rating</label>
+                        </div>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="col-12">
+                        <div class="form-floating">
+                            <textarea class="form-control" id="description" name="description" placeholder="Description"
+                                style="height:120px" required></textarea>
+                            <label for="description">Description</label>
+                        </div>
+                    </div>
+
+                    <!-- Specifications -->
+                    <h5 class="mt-3">Specifications</h5>
+
+                    <div class="col-md-4">
+                        <div class="form-floating">
+                            <input type="text" class="form-control" id="weight" name="specs[weight]"
+                                placeholder="Weight">
+                            <label for="weight">Weight</label>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="form-floating">
+                            <input type="text" class="form-control" id="dimensions" name="specs[dimensions]"
+                                placeholder="Dimensions">
+                            <label for="dimensions">Dimensions</label>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="form-floating">
+                            <input type="text" class="form-control" id="flightTime" name="specs[maxFlightTime]"
+                                placeholder="Max Flight Time">
+                            <label for="flightTime">Max Flight Time</label>
+                        </div>
+                    </div>
+
+                    <!-- Camera Specs -->
+                    <div class="col-12 mt-2"><strong>Camera Specs:</strong></div>
+                    <div class="col-md-4">
+                        <div class="form-floating">
+                            <input type="text" class="form-control" id="cameraType" name="specs[cameraType]"
+                                placeholder="Camera Type">
+                            <label for="cameraType">Camera Type</label>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-floating">
+                            <input type="text" class="form-control" id="sensor" name="specs[sensor]"
+                                placeholder="Sensor">
+                            <label for="sensor">Sensor</label>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-floating">
+                            <input type="text" class="form-control" id="videoRes" name="specs[maxVideoResolution]"
+                                placeholder="Max Video Resolution">
+                            <label for="videoRes">Max Video Resolution</label>
+                        </div>
+                    </div>
+
+                    <!-- Images -->
+                    <div class="col-md-4">
+                        <label for="mainImage" class="form-label">Main Product Image</label>
+                        <input type="file" class="form-control" id="mainImage" name="mainImage" accept="image/*"
+                            required>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="thumbnails" class="form-label">Thumbnail Images (5–8)</label>
+                        <input type="file" class="form-control" id="thumbnails" name="thumbnails" accept="image/*"
+                            multiple required>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="boxImages" class="form-label">In-Box Images (12)</label>
+                        <input type="file" class="form-control" id="boxImages" name="boxImages" accept="image/*"
+                            multiple required>
+                    </div>
+
+                    <!-- Submit -->
+                    <div class="col-12 mt-3">
+                        <button type="submit" class="btn btn-primary w-100">Save Product</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+
+
+        <!-- Users Table -->
+
+    </div>
+    <script src="assets/js/common.js"></script>
+    <script src="assets/js/main.js"></script>
+    <script src="assets/js/products.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", async () => {
+            const productId = new URLSearchParams(window.location.search).get("id");
+            if (!productId) {
+                alert("No product ID provided");
+                return;
+            }
+
+            const titleInput = document.getElementById("title");
+            const categoryInput = document.getElementById("category");
+            const priceInput = document.getElementById("price");
+            const stockInput = document.getElementById("stock");
+            const badgeInput = document.getElementById("badge");
+            const ratingInput = document.getElementById("rating");
+            const descriptionInput = document.getElementById("description");
+            const specsInput = document.getElementById("specs");
+            const featuredCheckbox = document.getElementById("featured");
+
+            // =============================
+            // ✅ Load Product Data
+            // =============================
+            async function loadProductData() {
+                try {
+                    const res = await fetch(`/api/products/${productId}`, {
+                        credentials: "include"
+                    });
+
+                    if (!res.ok) throw new Error("Failed to fetch product data");
+
+                    const product = await res.json();
+
+                    // Populate form fields
+                    titleInput.value = product.title || "";
+                    categoryInput.value = product.category || "";
+                    priceInput.value = product.price || 0;
+                    stockInput.value = product.stock || 0;
+                    badgeInput.value = product.badge || "";
+                    ratingInput.value = product.rating || "";
+                    descriptionInput.value = product.description || "";
+                    specsInput.value = product.specs ? JSON.stringify(product.specs, null, 2) : "";
+                    featuredCheckbox.checked = product.featured || false;
+
+                } catch (err) {
+                    console.error(err);
+                    alert("Error loading product data. Check console.");
+                }
+            }
+
+            await loadProductData();
+
+            // =============================
+            // ✅ Update Product Submission
+            // =============================
+            const productForm = document.getElementById("productForm") || document.getElementById("updateProductForm");
+            productForm.addEventListener("submit", async (e) => {
+                e.preventDefault();
+
+                const formData = new FormData(productForm);
+
+                try {
+                    const res = await fetch(`/api/products/${productId}`, {
+                        method: "PATCH",
+                        body: formData,
+                        credentials: "include"
+                    });
+
+                    if (!res.ok) throw new Error("Failed to update product");
+
+                    alert("Product updated successfully!");
+                    window.location.href = "products.html"; // redirect back to products page
+
+                } catch (err) {
+                    console.error(err);
+                    alert("Error updating product. Check console.");
+                }
+            });
+        });
+
+    </script>
+</body>
+
+</html>

@@ -33,13 +33,14 @@ app.use('/api/orders', require('./routes/orders'));
 app.use('/api/cart', require('./routes/cart'));
 app.use('/api/wishlist', require('./routes/wishlist'));
 app.use('/api/payments', require('./routes/payments'));
+app.use('/api/products', require('./routes/products'));
 
 // Define absolute paths
 const publicPath = path.resolve(__dirname, '../public');
 const adminPath = path.resolve(__dirname, '../admin');
 
-console.log("Public path:", path.join(publicPath, 'index.html'));
-console.log("Admin path:", path.join(adminPath, 'index.html'));
+// console.log("Public path:", path.join(publicPath, 'index.html'));
+// console.log("Admin path:", path.join(adminPath, 'index.html'));
 
 // Serve static files
 app.use('/', express.static(publicPath));
@@ -65,4 +66,5 @@ app.get("/test", (req, res) => {
 
 // Start server
 const PORT = process.env.PORT || 5000;
+// const PORT = 5000;
 app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));

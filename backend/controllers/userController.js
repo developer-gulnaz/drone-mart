@@ -2,6 +2,7 @@
 const crypto = require("crypto");
 const User = require("../models/User");
 const Order = require("../models/Order");
+const Cart = require("../models/Cart");
 const bcrypt = require("bcryptjs");
 
 // -----------------------------
@@ -101,31 +102,9 @@ exports.updateUserProfile = async (req, res) => {
   }
 };
 
-exports.deleteUserProfile = async (req, res) => {
-  try {
-    if (!req.session.userId) return res.status(401).json({ message: "Not authenticated" });
-
-    await User.findByIdAndDelete(req.session.userId);
-    req.session.destroy(() => { });
-    res.json({ message: "Account deleted" });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Server error" });
-  }
-};
-
 // -----------------------------
 // OTHER USER ROUTES (ADMIN)
 // -----------------------------
-exports.getUsers = async (req, res) => {
-  try {
-    const users = await User.find({}).select("-password");
-    res.json(users);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server error" });
-  }
-};
 
 exports.getUserById = async (req, res) => {
   try {
@@ -162,20 +141,6 @@ exports.updateUser = async (req, res) => {
   }
 };
 
-exports.deleteUser = async (req, res) => {
-  try {
-    const user = await User.findById(req.params.id);
-    if (user) {
-      await user.remove();
-      res.json({ message: "User removed" });
-    } else {
-      res.status(404).json({ message: "User not found" });
-    }
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server error" });
-  }
-};
 
 // -----------------------------
 // ADMIN DASHBOARD & RECENT USERS
@@ -186,6 +151,21 @@ const checkAdminSession = (req, res, next) => {
   }
   next();
 };
+
+exports.getAllUsers = [
+  checkAdminSession,
+  async (req, res) => {
+    try {
+      const users = await User.find({ isDeleted: { $ne: true } })
+        .sort({ createdAt: -1 });
+
+      res.json(users);
+    } catch (err) {
+      console.error("Error fetching all users:", err);
+      res.status(500).json({ message: "Server error" });
+    }
+  }
+];
 
 exports.getDashboardStatus = [
   checkAdminSession,
@@ -238,23 +218,6 @@ exports.getDashboardStatus = [
   }
 ];
 
-exports.getRecentUsers = [
-  checkAdminSession,
-  async (req, res) => {
-    try {
-      const users = await User.find({})
-        .sort({ createdAt: -1 })
-        .limit(10)
-        .select("firstName lastName email mobile createdAt");
-
-      res.json(users);
-    } catch (err) {
-      console.error("Error fetching recent users:", err);
-      res.status(500).json({ message: "Server error" });
-    }
-  }
-];
-
 // Update Address
 exports.updateAddress = async (req, res) => {
   const { street, apartment } = req.body;
@@ -276,6 +239,149 @@ exports.updateAddress = async (req, res) => {
 
   res.json({ message: "Address updated successfully", address: user.address });
 };
+
+// Update User Status / Lead Tag
+exports.updateUserStatus = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const { statusTag } = req.body; // Expecting { statusTag: "High Priority" } or similar
+
+    if (!statusTag) {
+      return res.status(400).json({ message: "Status tag is required" });
+    }
+
+    // Update user
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { statusTag },   // update your field
+      { new: true }    // return updated document
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json({ message: "User status updated successfully", user: updatedUser });
+  } catch (err) {
+    console.error("Update User Status Error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+
+function assignUserStatusTag(user) {
+  // Example logic:
+  // New: No orders
+  // Priority: Failed orders or abandoned carts > 3-5 days
+  if (!user.orders || user.orders.length === 0) return "New";
+
+  const hasFailedOrder = user.orders.some(o => o.status === "failed");
+  if (hasFailedOrder) return "High Priority";
+
+  const abandonedCart = user.cart && user.cart.some(c => {
+    const diffDays = (new Date() - new Date(c.updatedAt)) / (1000 * 60 * 60 * 24);
+    return diffDays >= 3;
+  });
+  if (abandonedCart) return "Abandoned Cart";
+
+  return "Regular";
+}
+
+// -------------------------------
+// Get Recent Users
+// -------------------------------
+exports.getRecentLeads = [
+  checkAdminSession,
+  async (req, res) => {
+    try {
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+      // Fetch users who were modified/active in last 7 days
+      const users = await User.find({
+        isDeleted: { $ne: true },
+        modifiedAt: { $gte: sevenDaysAgo }
+      }).sort({ modifiedAt: -1 });
+
+      const usersWithDetails = await Promise.all(users.map(async u => {
+        const userObj = u.toObject();
+
+        const orders = await Order.find({ user: u._id });
+        const cart = await Cart.find({ user: u._id });
+
+        userObj.orders = orders;
+        userObj.cart = cart;
+
+        // Use manual status if exists, otherwise assign automatic
+        if (!userObj.statusTag) {
+          userObj.statusTag = assignUserStatusTag(userObj);
+        }
+
+        return userObj;
+      }));
+
+      res.json(usersWithDetails);
+    } catch (err) {
+      console.error("Get Recent Leads Error:", err);
+      res.status(500).json({ message: "Failed to fetch leads" });
+    }
+  }
+];
+
+
+
+// Soft delete user
+exports.deleteUser = [
+  checkAdminSession, async (req, res) => {
+    try {
+      const user = await User.findByIdAndUpdate(
+        req.params.id,
+        { isDeleted: true },
+        { new: true }
+      );
+
+      if (!user) return res.status(404).json({ message: "User not found" });
+      res.json({ message: "User soft deleted successfully" });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: "Server error" });
+    }
+  }];
+
+// Update user status
+exports.updateUserStatus = [
+  checkAdminSession,
+  async (req, res) => {
+    try {
+      const { statusTag } = req.body;
+
+      const user = await User.findByIdAndUpdate(
+        req.params.id,
+        { statusTag, modifiedAt: Date.now() },  // update modifiedAt
+        { new: true }
+      );
+
+      if (!user) return res.status(404).json({ message: "User not found" });
+      res.json(user);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: "Server error" });
+    }
+  },
+];
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -45,7 +45,7 @@ router.get("/:id", checkUserSession, async (req, res) => {
     if (!order) return res.status(404).json({ message: "Order not found" });
     if (order.user.toString() !== req.session.userId.toString())
       return res.status(403).json({ message: "Unauthorized" });
-    
+
     // Fetch user details
     const user = await User.findById(order.user).lean();
     const shippingAddress = {
@@ -127,7 +127,7 @@ router.delete("/:id", checkUserSession, async (req, res) => {
 // Get all orders
 router.get("/", checkAdminSession, async (req, res) => {
   try {
-    const orders = await Order.find().populate("user", "firstName lastName email").sort({ createdAt: -1 });
+    const orders = await Order.find().populate("user", "firstName lastName email mobile").sort({ createdAt: -1 });
     res.json(orders);
   } catch (err) {
     console.error("Error fetching all orders:", err);
@@ -135,28 +135,31 @@ router.get("/", checkAdminSession, async (req, res) => {
   }
 });
 
-// Update order status
-router.put("/:id/status", checkAdminSession, async (req, res) => {
+// Update order + payment status
+router.patch("/:id/status", checkAdminSession, async (req, res) => {
   try {
-    const { status } = req.body;
-    const validStatuses = ["pending", "processing", "shipped", "delivered", "cancelled"];
+    const updateData = {};
 
-    if (!status || !validStatuses.includes(status)) {
-      return res.status(400).json({ message: "Invalid status" });
+    if (req.body.status) updateData.status = req.body.status;
+    if (req.body.paymentStatus) updateData.paymentStatus = req.body.paymentStatus;
+
+    const order = await Order.findByIdAndUpdate(
+      req.params.id,
+      updateData,
+      { new: true } // return updated document
+    );
+
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
     }
 
-    const order = await Order.findById(req.params.id);
-    if (!order) return res.status(404).json({ message: "Order not found" });
-
-    order.status = status;
-    await order.save();
-
-    res.json({ message: "Order status updated", order });
+    res.json(order);
   } catch (err) {
-    console.error("Error updating order status:", err);
+    console.error("Error updating order:", err);
     res.status(500).json({ message: "Server error" });
   }
 });
+
 
 // Delete order (admin override)
 router.delete("/:id/admin", checkAdminSession, async (req, res) => {
@@ -171,8 +174,6 @@ router.delete("/:id/admin", checkAdminSession, async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
-
-router.post("/create", checkUserSession, orderController.createOrder);
 
 // COD order
 router.post("/cod", checkUserSession, orderController.createCodOrder);

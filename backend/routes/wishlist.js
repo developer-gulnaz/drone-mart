@@ -24,17 +24,19 @@ router.get("/", checkUserSession, async (req, res) => {
       await wishlist.save();
     }
 
-    // Map items to include product info for frontend
+    // Map items safely to include product info for frontend
     const wishlistWithDetails = {
       ...wishlist.toObject(),
-      items: wishlist.items.map(item => ({
-        _id: item._id,
-        product: item.product._id,
-        title: item.product.title,
-        price: item.product.price,
-        image: item.product.image,
-        quantity: item.quantity || 1
-      }))
+      items: wishlist.items
+        .filter(item => item.product) // Skip null/deleted products
+        .map(item => ({
+          _id: item._id,
+          product: item.product._id,
+          title: item.product.title,
+          price: item.product.price,
+          image: item.product.image,
+          quantity: item.quantity || 1
+        }))
     };
 
     res.json(wishlistWithDetails);

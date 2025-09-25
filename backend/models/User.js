@@ -16,6 +16,13 @@ const userSchema = mongoose.Schema(
     street: { type: String },
     apartment: { type: String },
 
+    statusTag: {
+      type: String,
+      enum: ["New", "High Priority", "Cart Abandoned", "Active", "Dormant"],
+      default: "New"
+    },
+    createdAt: { type: Date, default: Date.now },
+    modifiedAt: { type: Date, default: Date.now }, // new field
   },
   { timestamps: true }
 );

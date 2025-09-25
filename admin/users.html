@@ -7,13 +7,12 @@
     <title>DroneMart Admin Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <link rel="stylesheet" href="assets/css/style.css">
 
 </head>
 
 <body>
-
-
     <!-- Sidebar -->
     <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
@@ -126,19 +125,16 @@
                 <button id="searchBtn" class="btn btn-primary w-100">Search</button>
             </div>
         </div>
-
-
-
         <!-- Users Table -->
         <div class="table-responsive">
             <table class="table table-hover" id="usersTable">
                 <thead class="table-primary">
                     <tr>
                         <th>Sr No</th>
+                        <th>Date</th>
                         <th>Name</th>
                         <th>Email</th>
                         <th>Mobile</th>
-                        <th>Date</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -147,158 +143,55 @@
 
         </div>
     </div>
-    <script src="assets/js/dashboard.js"></script>
+    <!-- Update Lead/User Status Modal -->
+    <div class="modal fade" id="updateUserStatusModal" tabindex="-1" aria-labelledby="updateUserStatusModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
 
+                <!-- Modal Header -->
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="updateUserStatusModalLabel">Update User / Lead Status</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
+                <!-- Modal Body -->
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Current Status</label><br>
+                        <span id="modalCurrentUserStatusBadge" class="badge bg-secondary">Loading...</span>
+                    </div>
 
-            // Set admin info from localStorage
-            const adminName = localStorage.getItem('name') || 'Admin';
-            const userType = localStorage.getItem('userType') || 'Administrator';
+                    <div class="mb-3">
+                        <label for="userStatusSelect" class="form-label">Select New Status</label>
+                        <select class="form-select" id="userStatusSelect">
+                            <option value="New">🟢 New User</option>
+                            <option value="High Priority">🔴 High Priority Lead</option>
+                            <option value="Cart Abandoned">🛒 Cart Abandoned</option>
+                            <option value="Active">✅ Active Buyer</option>
+                            <option value="Dormant">⚪ Dormant User</option>
+                        </select>
+                    </div>
 
-            document.getElementById('adminName').textContent = adminName;
-            document.getElementById('userType').textContent = userType;
+                    <div class="alert alert-info small">
+                        <i class="bi bi-info-circle"></i> Updating this will change how the user is categorized in
+                        reports & campaigns.
+                    </div>
+                </div>
 
-            // Elements
-            const sidebar = document.getElementById('sidebar');
-            const mainContent = document.getElementById('mainContent');
-            const sidebarToggle = document.getElementById('sidebarToggle');
-            const hamburger = document.getElementById('hamburger');
-            const sidebarOverlay = document.getElementById('sidebarOverlay');
-            const profileToggle = document.getElementById('profileToggle');
-            const profileDropdown = document.getElementById('profileDropdown');
-            const logoutBtn = document.getElementById('logoutBtn');
+                <!-- Modal Footer -->
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="saveUserStatusBtn">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="assets/js/users.js"></script>
+    <script src="assets/js/common.js"></script>
+    <script src="assets/js/main.js"></script>
 
-            // Unified checkWidth function
-            function checkWidth() {
-                if (window.innerWidth <= 992) {
-                    // Mobile: hide sidebar completely
-                    sidebar.classList.remove('collapsed', 'active');
-                    mainContent.classList.remove('expanded');
-                    hamburger.style.display = 'block';
-                } else {
-                    // Desktop: collapsed sidebar by default
-                    sidebar.classList.add('collapsed');
-                    mainContent.classList.add('expanded');
-                    hamburger.style.display = 'none';
-                }
-            }
-
-            // Run on load and resize
-            checkWidth();
-            window.addEventListener('resize', checkWidth);
-
-            // Desktop sidebar toggle (collapsed)
-            sidebarToggle.addEventListener('click', function () {
-                if (window.innerWidth > 992) {
-                    sidebar.classList.toggle('collapsed');
-                    mainContent.classList.toggle('expanded');
-
-                    const icon = sidebarToggle.querySelector('i');
-                    if (sidebar.classList.contains('collapsed')) {
-                        icon.classList.remove('bi-arrow-left-circle');
-                        icon.classList.add('bi-arrow-right-circle');
-                    } else {
-                        icon.classList.remove('bi-arrow-right-circle');
-                        icon.classList.add('bi-arrow-left-circle');
-                    }
-                } else {
-                    // Mobile back arrow closes sidebar
-                    sidebar.classList.remove('active');
-                    hamburger.style.display = 'block';
-                }
-            });
-
-            // Hamburger opens sidebar on mobile
-            hamburger.addEventListener('click', function () {
-                sidebar.classList.add('active');
-                hamburger.style.display = 'none';
-            });
-
-            // Overlay click closes sidebar on mobile
-            sidebarOverlay.addEventListener('click', function () {
-                sidebar.classList.remove('active');
-                hamburger.style.display = 'block';
-            });
-
-            // Profile dropdown toggle
-            profileToggle.addEventListener('click', function (e) {
-                e.stopPropagation();
-                profileDropdown.classList.toggle('active');
-            });
-
-            // Close dropdown when clicking outside
-            document.addEventListener('click', function (e) {
-                if (!profileToggle.contains(e.target) && !profileDropdown.contains(e.target)) {
-                    profileDropdown.classList.remove('active');
-                }
-            });
-
-            // Logout functionality
-            logoutBtn.addEventListener('click', function () {
-                if (confirm('Are you sure you want to logout?')) {
-                    localStorage.removeItem('adminToken');
-                    localStorage.removeItem('userType');
-                    localStorage.removeItem('name');
-                    window.location.href = '/admin';
-                }
-            });
-        });
-    </script>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const usersTable = document.getElementById('usersTable').getElementsByTagName('tbody')[0];
-            const searchKeyword = document.getElementById('searchKeyword');
-            const searchFromDate = document.getElementById('searchFromDate');
-            const searchToDate = document.getElementById('searchToDate');
-            const searchBtn = document.getElementById('searchBtn');
-
-            function filterTable() {
-                const keyword = searchKeyword.value.toLowerCase();
-                const fromDate = searchFromDate.value;
-                const toDate = searchToDate.value;
-
-                for (let row of usersTable.rows) {
-                    const name = row.cells[1].textContent.toLowerCase();
-                    const mobile = row.cells[3].textContent.toLowerCase();
-                    const rowDate = row.cells[4].textContent;
-
-                    // Keyword match (live)
-                    const matchesKeyword = name.includes(keyword) || mobile.includes(keyword);
-
-                    // Date match (only triggered by button)
-                    let matchesDate = true;
-                    if (fromDate && toDate) {
-                        matchesDate = rowDate >= fromDate && rowDate <= toDate;
-                    } else if (fromDate) {
-                        matchesDate = rowDate >= fromDate;
-                    } else if (toDate) {
-                        matchesDate = rowDate <= toDate;
-                    }
-
-                    // Show or hide row
-                    row.style.display = matchesKeyword && matchesDate ? '' : 'none';
-                }
-            }
-
-            // Live filter for keyword
-            searchKeyword.addEventListener('input', () => {
-                const keyword = searchKeyword.value.toLowerCase();
-
-                for (let row of usersTable.rows) {
-                    const name = row.cells[1].textContent.toLowerCase();
-                    const mobile = row.cells[3].textContent.toLowerCase();
-
-                    row.style.display = (name.includes(keyword) || mobile.includes(keyword)) ? '' : 'none';
-                }
-            });
-
-            // Date filter triggered by button
-            searchBtn.addEventListener('click', filterTable);
-        });
-    </script>
 </body>
 
 </html>

@@ -1,18 +1,42 @@
 const mongoose = require('mongoose');
 
 const productSchema = new mongoose.Schema({
-  title: { type: String, required: true },
-  category: String,
+  title: { type: String, required: true, trim: true },
+  slug: { type: String, unique: true, index: true }, // SEO-friendly URL
+  category: { type: String, index: true },
+  brand: { type: String }, // optional, for brand filter
   price: { type: Number, required: true },
-  rating: Number,
-  reviews: { type: Number, default: 0 },
-  image: String,
-  badge: String,
+  salePrice: { type: Number }, // optional for discounts
+  badge: { type: String }, // e.g., "New", "Hot", "Sale"
+  
   stock: { type: Number, default: 0 },
-  description: String,
+  inStock: { type: Boolean, default: true },
+
+  image: { type: String, required: true }, // main image
+  thumbnails: [{ type: String }], // array of extra images
+
+  description: { type: String },
+  shortDescription: { type: String }, // for category cards
+
+  specs: { type: mongoose.Schema.Types.Mixed }, // product specs JSON (flexible)
+
+  rating: { type: Number, default: 0 },
+  reviews: { type: Number, default: 0 },
+
   featured: { type: Boolean, default: false },
-  specs: { type: mongoose.Schema.Types.Mixed },
-  createdAt: { type: Date, default: Date.now }
+
+  metaTitle: { type: String },   // SEO fields
+  metaDescription: { type: String },
+  keywords: [{ type: String }],
+
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now }
 });
 
-module.exports = mongoose.model('Product', productSchema);
+// Middleware to keep updatedAt fresh
+productSchema.pre('save', function (next) {
+  this.updatedAt = Date.now();
+  next();
+});
+
+module.exports = mongoose.model('Product', productSchema, 'products');

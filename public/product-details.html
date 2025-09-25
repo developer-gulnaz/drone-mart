@@ -25,7 +25,6 @@
   <link href="assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
   <link href="assets/vendor/aos/aos.css" rel="stylesheet">
   <link href="assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
-  <link href="assets/vendor/drift-zoom/drift-basic.css" rel="stylesheet">
 
   <!-- Main CSS File -->
   <link href="assets/css/main.css" rel="stylesheet">
@@ -35,7 +34,7 @@
 
 <body class="product-details-page">
 
- <header id="header" class="header sticky-top">
+  <header id="header" class="header sticky-top">
     <!-- Top Bar -->
     <div class="top-bar">
       <div class="container-fluid container-xl">
@@ -593,117 +592,63 @@
 
         <div class="row g-4">
           <!-- Product Gallery -->
-          <div class="col-lg-7" data-aos="zoom-in" data-aos-delay="150">
+          <div class="col-lg-6" data-aos="zoom-in" data-aos-delay="150">
             <div class="product-gallery">
               <div class="main-showcase">
                 <div class="image-zoom-container">
-                  <img src="assets/img/product/product-details-6.webp" alt="Product Main"
-                    class="img-fluid main-product-image" id="main-product-image"
-                    data-zoom="assets/img/product/product-details-6.webp">
+                  <img src="" alt="Product Main" class="img-fluid main-product-image" id="main-product-image">
 
+                  <!-- Keep navigation arrows for image switching -->
                   <div class="image-navigation">
-                    <button class="nav-arrow prev-image image-nav-btn prev-image" type="button">
+                    <button class="nav-arrow prev-image image-nav-btn" type="button">
                       <i class="bi bi-chevron-left"></i>
                     </button>
-                    <button class="nav-arrow next-image image-nav-btn next-image" type="button">
+                    <button class="nav-arrow next-image image-nav-btn" type="button">
                       <i class="bi bi-chevron-right"></i>
                     </button>
                   </div>
                 </div>
               </div>
 
-              <div class="thumbnail-grid">
-                <div class="thumbnail-wrapper thumbnail-item active"
-                  data-image="assets/img/product/product-details-6.webp">
-                  <img src="assets/img/product/product-details-6.webp" alt="View 1" class="img-fluid">
-                </div>
-                <div class="thumbnail-wrapper thumbnail-item" data-image="assets/img/product/product-details-7.webp">
-                  <img src="assets/img/product/product-details-7.webp" alt="View 2" class="img-fluid">
-                </div>
-                <div class="thumbnail-wrapper thumbnail-item" data-image="assets/img/product/product-details-8.webp">
-                  <img src="assets/img/product/product-details-8.webp" alt="View 3" class="img-fluid">
-                </div>
-                <div class="thumbnail-wrapper thumbnail-item" data-image="assets/img/product/product-details-4.webp">
-                  <img src="assets/img/product/product-details-4.webp" alt="View 4" class="img-fluid">
-                </div>
-                <div class="thumbnail-wrapper thumbnail-item" data-image="assets/img/product/product-details-5.webp">
-                  <img src="assets/img/product/product-details-5.webp" alt="View 5" class="img-fluid">
-                </div>
-                <div class="thumbnail-wrapper thumbnail-item" data-image="assets/img/product/product-details-3.webp">
-                  <img src="assets/img/product/product-details-3.webp" alt="View 6" class="img-fluid">
-                </div>
-              </div>
+              <!-- Thumbnails (populated dynamically) -->
+              <div class="thumbnail-grid"></div>
             </div>
           </div>
-
           <!-- Product Details -->
-          <div class="col-lg-5" data-aos="fade-left" data-aos-delay="200">
+          <div class="col-lg-6" data-aos="fade-left" data-aos-delay="200">
             <div class="product-details">
               <div class="product-badge-container">
-                <span class="badge-category">Audio Equipment</span>
-                <div class="rating-group">
-                  <div class="stars">
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-half"></i>
-                  </div>
-                  <span class="review-text">(127 reviews)</span>
-                </div>
+                <span class="badge-category"></span>
+                <!-- Reviews (optional dynamic if you want later) -->
+                <!-- <div class="rating-group">
+          <div class="stars"></div>
+          <span class="review-text"></span>
+        </div> -->
               </div>
 
-              <h1 class="product-name">Mauris tempus cursus magna vel scelerisque nisl consectetur</h1>
+              <h1 class="product-name"></h1>
 
               <div class="pricing-section">
                 <div class="price-display">
-                  <span class="sale-price">$189.99</span>
-                  <span class="regular-price">$239.99</span>
+                  <span class="sale-price"></span>
+                  <span class="regular-price"></span>
                 </div>
                 <div class="savings-info">
-                  <span class="save-amount">Save $50.00</span>
-                  <span class="discount-percent">(21% off)</span>
+                  <span class="save-amount"></span>
+                  <span class="discount-percent"></span>
                 </div>
               </div>
 
               <div class="product-description">
-                <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium,
-                  totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta
-                  sunt explicabo.</p>
+                <p></p>
               </div>
 
               <div class="availability-status">
                 <div class="stock-indicator">
                   <i class="bi bi-check-circle-fill"></i>
-                  <span class="stock-text">Available</span>
+                  <span class="stock-text"></span>
                 </div>
-                <div class="quantity-left">Only 18 items remaining</div>
-              </div>
-
-              <!-- Product Variants -->
-              <div class="variant-section">
-                <div class="color-selection">
-                  <label class="variant-label">Available Colors:</label>
-                  <div class="color-grid">
-                    <div class="color-chip active" data-color="Midnight Black"
-                      style="background: linear-gradient(135deg, #1a1a1a, #000);">
-                      <span class="selection-check"><i class="bi bi-check"></i></span>
-                    </div>
-                    <div class="color-chip" data-color="Pearl White"
-                      style="background: linear-gradient(135deg, #f8f9fa, #e9ecef);">
-                      <span class="selection-check"><i class="bi bi-check"></i></span>
-                    </div>
-                    <div class="color-chip" data-color="Ocean Blue"
-                      style="background: linear-gradient(135deg, #0066cc, #004499);">
-                      <span class="selection-check"><i class="bi bi-check"></i></span>
-                    </div>
-                    <div class="color-chip" data-color="Forest Green"
-                      style="background: linear-gradient(135deg, #28a745, #155724);">
-                      <span class="selection-check"><i class="bi bi-check"></i></span>
-                    </div>
-                  </div>
-                  <div class="selected-variant">Selected: <span>Midnight Black</span></div>
-                </div>
+                <div class="quantity-left"></div>
               </div>
 
               <!-- Purchase Options -->
@@ -715,7 +660,7 @@
                       <button class="quantity-btn decrease" type="button">
                         <i class="bi bi-dash"></i>
                       </button>
-                      <input type="number" class="quantity-input" value="1" min="1" max="18">
+                      <input type="number" class="quantity-input" value="1" min="1">
                       <button class="quantity-btn increase" type="button">
                         <i class="bi bi-plus"></i>
                       </button>
@@ -732,13 +677,13 @@
                     <i class="bi bi-lightning"></i>
                     Buy Now
                   </button>
-                  <button class="btn icon-action" title="Add to Wishlist">
+                  <button class="btn icon-action wishlist-btn">
                     <i class="bi bi-heart"></i>
                   </button>
                 </div>
               </div>
 
-              <!-- Benefits List -->
+              <!-- Benefits List (you can also fetch from DB if needed) -->
               <div class="benefits-list">
                 <div class="benefit-item">
                   <i class="bi bi-truck"></i>
@@ -761,6 +706,7 @@
           </div>
         </div>
 
+
         <!-- Information Tabs -->
         <div class="row mt-5" data-aos="fade-up" data-aos-delay="300">
           <div class="col-12">
@@ -770,8 +716,8 @@
                   data-bs-target="#ecommerce-product-details-5-overview" type="button">Overview</button>
                 <button class="nav-link" data-bs-toggle="tab" data-bs-target="#ecommerce-product-details-5-technical"
                   type="button">Technical Details</button>
-                <button class="nav-link" data-bs-toggle="tab"
-                  data-bs-target="#ecommerce-product-details-5-customer-reviews" type="button">Reviews (127)</button>
+                <!-- <button class="nav-link" data-bs-toggle="tab"
+                  data-bs-target="#ecommerce-product-details-5-customer-reviews" type="button">Reviews (127)</button> -->
               </nav>
 
               <div class="tab-content">
@@ -941,7 +887,7 @@
                 </div>
 
                 <!-- Reviews Tab -->
-                <div class="tab-pane fade" id="ecommerce-product-details-5-customer-reviews">
+                <!--  
                   <div class="reviews-content">
                     <div class="reviews-header">
                       <div class="rating-overview">
@@ -1096,7 +1042,7 @@
                       </div>
                     </div>
                   </div>
-                </div>
+                </div> -->
               </div>
             </div>
           </div>
@@ -1254,13 +1200,13 @@
   <script src="assets/vendor/swiper/swiper-bundle.min.js"></script>
   <script src="assets/vendor/aos/aos.js"></script>
   <script src="assets/vendor/glightbox/js/glightbox.min.js"></script>
-  <script src="assets/vendor/drift-zoom/Drift.min.js"></script>
   <script src="assets/vendor/purecounter/purecounter_vanilla.js"></script>
 
   <!-- Main JS File -->
   <script src="assets/js/main.js"></script>
   <script src="assets/js/index.js"></script>
   <script src="assets/js/common.js"></script>
+  <script src="assets/js/productDetails.js"></script>
 
 </body>
 

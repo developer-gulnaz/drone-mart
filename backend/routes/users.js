@@ -2,12 +2,14 @@ const express = require('express');
 const router = express.Router();
 
 const {
-  getRecentUsers,
+  getRecentLeads,
+  getAllUsers,
   getDashboardStatus,
   getUserProfile,
   updateUserProfile,
-  deleteUserProfile,
-  updateAddress
+  deleteUser,
+  updateAddress,
+  updateUserStatus
 } = require('../controllers/userController');
 
 
@@ -22,7 +24,9 @@ const checkAdminSession = (req, res, next) => {
 };
 
 // Get recent users
-router.get('/recent', checkAdminSession, getRecentUsers);
+router.get('/recent', checkAdminSession, getRecentLeads);
+
+router.get('/all', checkAdminSession, getAllUsers);
 
 // Dashboard status
 router.get('/dashboard/status', checkAdminSession, getDashboardStatus);
@@ -55,9 +59,12 @@ router.get('/profile', checkUserSession, getUserProfile);
 router.put('/me', checkUserSession, updateUserProfile);
 
 // DELETE user profile
-router.delete('/me', checkUserSession, deleteUserProfile);
+router.delete('/:id', checkUserSession, deleteUser);
 
 // Add / Update shipping address
 router.post("/update-address", checkUserSession, updateAddress);
+
+router.patch("/:id/status", checkAdminSession, updateUserStatus);
+
 
 module.exports = router;

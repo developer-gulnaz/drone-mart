@@ -23,6 +23,8 @@ const OrderSchema = new mongoose.Schema({
     default: "pending",
   },
 
+  paymentStatus :{ type: String, enum: ["initiated", "pending", "completed", "not paid(cancelled)", "paid"]},
+
   paymentRef: { type: mongoose.Schema.Types.ObjectId, ref: "Payment" }
 
 }, { timestamps: true });

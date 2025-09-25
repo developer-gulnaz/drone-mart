@@ -70,77 +70,35 @@ document.addEventListener('DOMContentLoaded', async function () {
             });
         });
 
+        // products: array of products on the current page
         document.querySelectorAll(".cart-btn").forEach(btn => {
-            btn.addEventListener("click", async function () {
+            btn.addEventListener("click", function () {
                 const card = this.closest(".product-card");
                 const id = card.dataset.id;
-                const product = products.find(p => p._id === id);
 
-                try {
-                    const res = await fetch("/api/cart", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        credentials: "include",
-                        body: JSON.stringify({
-                            product: product._id,
-                            quantity: 1
-                        })
-                    });
-                    if (res.status === 401) {
-                        alert("Please login to add products to cart");
-                        window.location.href = "login.html";
-                        return;
-                    }
-                    if (res.ok) {
-                        const cartData = await res.json();
-                        alert(`${product.title} added to cart ✅`);
-                        window.updateCartBadge?.(cartData.items.length || 0);
-                    } else {
-                        console.error("Failed to add to cart", res.status);
-                    }
-                } catch (err) {
-                    console.error("Error adding to cart:", err);
-                }
+                // Find the product in the array for this page (index or category)
+                const product = products.find(p => p._id === id);
+                if (!product) return alert("Product not found");
+
+                // Call the global addToCart from category.js
+                window.addToCart(product);
             });
         });
+
 
         document.querySelectorAll(".wishlist-btn").forEach(btn => {
-            btn.addEventListener("click", async function () {
+            btn.addEventListener("click", function () {
                 const card = this.closest(".product-card");
+                if (!card) return;
+
                 const id = card.dataset.id;
                 const product = products.find(p => p._id === id);
+                if (!product) return;
 
-                try {
-                    const res = await fetch("/api/wishlist", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        credentials: "include",
-                        body: JSON.stringify({
-                            product: product._id,
-                            title: product.title,
-                            image: product.image,
-                            price: product.price
-                        })
-                    });
-
-                    if (res.status === 401) {
-                        alert("Please login to add products to wishlist");
-                        window.location.href = "login.html";
-                        return;
-                    }
-
-                    if (res.ok) {
-                        const wishlistData = await res.json();
-                        alert(`${product.title} added to wishlist ❤️`);
-                        window.updateWishlistBadge?.(wishlistData.items.length || 0);
-                    } else {
-                        console.error("Failed to add to wishlist", res.status);
-                    }
-                } catch (err) {
-                    console.error("Error adding to wishlist:", err);
-                }
+                window.addToWishlist(product);
             });
         });
+
     }
 
     // === Search ===
@@ -195,3 +153,4 @@ document.addEventListener('DOMContentLoaded', async function () {
     // === Initial Load ===
     fetchProducts();
 });
+

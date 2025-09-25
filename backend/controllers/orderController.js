@@ -24,41 +24,6 @@ async function removePurchasedItems(userId, purchasedItems) {
     await cart.save();
 }
 
-// ------------------- Create Order (generic) -------------------
-exports.createOrder = async (req, res) => {
-    try {
-        const { products, paymentMethod } = req.body;
-        const userId = req.session.userId;
-
-        if (!userId) return res.status(401).json({ message: "Unauthorized" });
-        if (!products || products.length === 0)
-            return res.status(400).json({ message: "Cart is empty" });
-
-        const total = products.reduce((sum, i) => sum + i.price * i.quantity, 0);
-
-        const order = new Order({
-            user: userId,
-            items: products.map((p) => ({
-                product: p.product,
-                title: p.title,
-                image: p.image,
-                price: p.price,
-                quantity: p.quantity || 1,
-            })),
-            payment: { method: paymentMethod },
-            total,
-            status: "pending",
-            paymentStatus: paymentMethod === "cod" ? "cod_pending" : "pending",
-        });
-
-        const created = await order.save();
-        res.status(201).json(created);
-    } catch (err) {
-        console.error("Create Order Error:", err);
-        res.status(500).json({ message: "Failed to create order" });
-    }
-};
-
 // ------------------- COD Order -------------------
 exports.createCodOrder = async (req, res) => {
     try {
@@ -69,6 +34,7 @@ exports.createCodOrder = async (req, res) => {
         if (!items || items.length === 0)
             return res.status(400).json({ message: "Cart is empty" });
 
+        // Create new order with professional statuses
         const order = new Order({
             user: userId,
             items: items.map((p) => ({
@@ -78,19 +44,25 @@ exports.createCodOrder = async (req, res) => {
                 price: p.price,
                 quantity: p.quantity || 1,
             })),
-
-            paymentMethod: "COD",
             total: totalAmount,
-            status: "pending",
-            paymentStatus: "cod_pending",
+            paymentMethod: "COD",
+            orderStatus: "initiated",      // Newly placed order
+            paymentStatus: "pending",      // COD not collected yet
+            createdAt: new Date(),
+            updatedAt: new Date(),
         });
 
         const created = await order.save();
+
         // Remove purchased items from cart
         await removePurchasedItems(userId, items);
 
-        res.status(201).json({ orderId: created._id });
-
+        res.status(201).json({
+            message: "COD Order placed successfully",
+            orderId: created._id,
+            orderStatus: order.orderStatus,
+            paymentStatus: order.paymentStatus,
+        });
     } catch (err) {
         console.error("COD Order Error:", err);
         res.status(500).json({ message: "Failed to create COD order" });
@@ -99,58 +71,58 @@ exports.createCodOrder = async (req, res) => {
 
 // ---------------- PayU Initiate ----------------
 exports.initiatePayuPayment = async (req, res) => {
-  try {
-    const { items, totalAmount, productinfo, firstname, email, phone } = req.body;
-    const userId = req.session.userId;
-    if (!userId) return res.status(401).json({ message: "Unauthorized" });
+    try {
+        const { items, totalAmount, productinfo, firstname, email, phone } = req.body;
+        const userId = req.session.userId;
+        if (!userId) return res.status(401).json({ message: "Unauthorized" });
 
-    const txnid = "txn" + Date.now();
-    const payuKey = process.env.PAYU_KEY;
-    const payuSalt = process.env.PAYU_SALT;
-    const amount = totalAmount.toFixed(2);
+        const txnid = "txn" + Date.now();
+        const payuKey = process.env.PAYU_KEY;
+        const payuSalt = process.env.PAYU_SALT;
+        const amount = totalAmount.toFixed(2);
 
-    // 1️⃣ Create order in DB
-    const order = new Order({
-      user: userId,
-      items: items.map((p) => ({
-        product: p.product,
-        title: p.title,
-        image: p.image,
-        price: p.price,
-        quantity: p.quantity || 1,
-      })),
-      paymentMethod: "PayU",
-      total: totalAmount,
-      status: "initiated",
-      paymentStatus: "initiated",
-    });
-    await order.save();
+        // 1️⃣ Create order in DB
+        const order = new Order({
+            user: userId,
+            items: items.map((p) => ({
+                product: p.product,
+                title: p.title,
+                image: p.image,
+                price: p.price,
+                quantity: p.quantity || 1,
+            })),
+            paymentMethod: "PayU",
+            total: totalAmount,
+            status: "initiated",
+            paymentStatus: "initiated",
+        });
+        await order.save();
 
-    // 2️⃣ Create payment record
-    const payment = new Payment({
-      order: order._id,
-      user: userId,
-      method: "PayU",
-      status: "initiated",
-      amount: totalAmount,
-      txnid,
-      productinfo
-    });
-    await payment.save();
+        // 2️⃣ Create payment record
+        const payment = new Payment({
+            order: order._id,
+            user: userId,
+            method: "PayU",
+            status: "initiated",
+            amount: totalAmount,
+            txnid,
+            productinfo
+        });
+        await payment.save();
 
-    // 3️⃣ Hash calculation
-    const udf1 = order._id.toString();
-    const udf2 = "";
-    const udf3 = "";
-    const udf4 = "";
-    const udf5 = "";
+        // 3️⃣ Hash calculation
+        const udf1 = order._id.toString();
+        const udf2 = "";
+        const udf3 = "";
+        const udf4 = "";
+        const udf5 = "";
 
-    // ✅ Correct formula
-    const hashString = `${payuKey}|${txnid}|${amount}|${productinfo}|${firstname}|${email}|${udf1}|${udf2}|${udf3}|${udf4}|${udf5}||||||${payuSalt}`;
-    const hash = crypto.createHash("sha512").update(hashString).digest("hex");
+        // ✅ Correct formula
+        const hashString = `${payuKey}|${txnid}|${amount}|${productinfo}|${firstname}|${email}|${udf1}|${udf2}|${udf3}|${udf4}|${udf5}||||||${payuSalt}`;
+        const hash = crypto.createHash("sha512").update(hashString).digest("hex");
 
-    // 4️⃣ PayU form
-    const payuForm = `
+        // 4️⃣ PayU form
+        const payuForm = `
       <form id="payuForm" method="post" action="https://test.payu.in/_payment">
         <input type="hidden" name="key" value="${payuKey}" />
         <input type="hidden" name="txnid" value="${txnid}" />
@@ -170,45 +142,45 @@ exports.initiatePayuPayment = async (req, res) => {
       </form>
     `;
 
-    res.json({ payuForm });
-  } catch (err) {
-    console.error("PayU Initiate Error:", err);
-    res.status(500).json({ message: "PayU initiation failed" });
-  }
+        res.json({ payuForm });
+    } catch (err) {
+        console.error("PayU Initiate Error:", err);
+        res.status(500).json({ message: "PayU initiation failed" });
+    }
 };
-
 
 
 // ---------------- PayU Success ----------------
 exports.payuSuccess = async (req, res) => {
     try {
-        const {
-            udf1, udf2, status, txnid, mihpayid, mode, bank_ref_num, productinfo, ...rest
-        } = req.body;
-
+        const { udf1, status, txnid, mihpayid, mode, bank_ref_num, productinfo } = req.body;
         const orderId = udf1;
         const order = await Order.findById(orderId);
         if (!order) return res.status(404).send("Order not found");
 
-        // Update Order
-        order.paymentStatus = status === "success" ? "paid" : "failed";
-        order.status = status === "success" ? "processing" : "pending";
-        await order.save();
+        // Only update if online payment
+        if (order.paymentMethod !== "COD") {
+            order.paymentStatus = status === "success" ? "paid" : "failed";
+            order.orderStatus = status === "success" ? "processing" : "initiated";
+            order.updatedAt = new Date();
+            await order.save();
 
-        // Update Payment
-        const payment = await Payment.findOne({ order: orderId, txnid });
-        if (payment) {
-            payment.status = status === "success" ? "paid" : "failed";
-            payment.mihpayid = mihpayid;
-            payment.mode = mode;
-            payment.bank_ref_num = bank_ref_num;
-            payment.productinfo = productinfo;
-            payment.rawResponse = req.body; // keep full PayU payload
-            await payment.save();
-        }
+            // Update Payment record
+            const payment = await Payment.findOne({ order: orderId, txnid });
+            if (payment) {
+                payment.status = order.paymentStatus;
+                payment.mihpayid = mihpayid;
+                payment.mode = mode;
+                payment.bank_ref_num = bank_ref_num;
+                payment.productinfo = productinfo;
+                payment.rawResponse = req.body;
+                payment.updatedAt = new Date();
+                await payment.save();
+            }
 
-        if (status === "success") {
-            await removePurchasedItems(order.user, order.items);
+            if (status === "success") {
+                await removePurchasedItems(order.user, order.items);
+            }
         }
 
         res.redirect(`/order-details.html?orderId=${order._id}`);
@@ -222,13 +194,13 @@ exports.payuSuccess = async (req, res) => {
 // ---------------- PayU Failure ----------------
 exports.payuFailure = async (req, res) => {
     try {
-        const { udf1, txnid, mihpayid, status, mode, bank_ref_num, productinfo, ...rest } = req.body;
-
+        const { udf1, status, txnid, mihpayid, mode, bank_ref_num, productinfo } = req.body;
         const orderId = udf1;
         const order = await Order.findById(orderId);
-        if (order) {
+        if (order && order.paymentMethod !== "COD") {
             order.paymentStatus = "failed";
-            order.status = "pending";
+            order.orderStatus = "initiated"; // reset to initial
+            order.updatedAt = new Date();
             await order.save();
         }
 
@@ -240,6 +212,7 @@ exports.payuFailure = async (req, res) => {
             payment.bank_ref_num = bank_ref_num;
             payment.productinfo = productinfo;
             payment.rawResponse = req.body;
+            payment.updatedAt = new Date();
             await payment.save();
         }
 

@@ -44,18 +44,18 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
 
       for (const order of orders) {
-        let paymentStatus = "--";
+        // let paymentStatus = "--";
 
-        // 🔹 Fetch payment details for this order (if not COD)
-        try {
-          const payRes = await fetch(`/api/payments/${order._id}`, { credentials: "include" });
-          if (payRes.ok) {
-            const payment = await payRes.json();
-            paymentStatus = payment?.status || "--";
-          }
-        } catch (err) {
-          console.warn(`No payment record found for order ${order._id}`);
-        }
+        // // 🔹 Fetch payment details for this order (if not COD)
+        // try {
+        //   const payRes = await fetch(`/api/payments/${order._id}`, { credentials: "include" });
+        //   if (payRes.ok) {
+        //     const payment = await payRes.json();
+        //     paymentStatus = payment?.status || "--";
+        //   }
+        // } catch (err) {
+        //   console.warn(`No payment record found for order ${order._id}`);
+        // }
 
         const orderCard = document.createElement("div");
         orderCard.classList.add("order-card");
@@ -72,7 +72,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             <div class="order-info">
               <div class="info-row"><span>Payment Type</span> <span class="status ${order.paymentMethod?.toLowerCase()}">${order.paymentMethod || '--'}</span></div>
               <div class="info-row"><span>Order Status</span> <span class="status ${order.status?.toLowerCase()}">${order.status || '--'}</span></div>
-              <div class="info-row"><span>Payment Status</span> <span class="status ${paymentStatus.toLowerCase()}">${paymentStatus}</span></div>
+              <div class="info-row"><span>Payment Status</span> <span class="status ${order.paymentStatus.toLowerCase()}">${order.paymentStatus}</span></div>
               <div class="info-row"><span>Items</span> ${order.items?.length || 0}</div>
               <div class="info-row"><span>Total</span> <span class="price">$${(order.total || 0).toFixed(2)}</span></div>
             </div>

@@ -1,51 +1,76 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const Product = require('../models/Product');
+const multer = require("multer");
+const path = require("path");
+const productController = require("../controllers/productController");
 
-// @desc    List products (optional search / category)
-// @route   GET /api/products
-router.get('/', async (req, res) => {
-  try {
-    const { q, category } = req.query;
-    const filter = {};
-    if (category) filter.category = new RegExp(category, 'i');
-    if (q) filter.title = new RegExp(q, 'i');
+// -----------------------------
+// Middleware
+// -----------------------------
+const checkUserSession = (req, res, next) => {
+  if (!req.session.userId) {
+    return res.status(401).json({ message: "Unauthorized - Please login" });
+  }
+  next();
+};
 
-    const products = await Product.find(filter).limit(100).lean();
-    res.json(products);
-  } catch (err) {
-    console.error("Error fetching products:", err);
-    res.status(500).json({ message: "Server error" });
+const checkAdminSession = (req, res, next) => {
+  if (!req.session.adminId) {
+    return res.status(401).json({ message: "Unauthorized - Admin login required" });
+  }
+  next();
+};
+
+
+// =============================
+// Multer setup for images
+// =============================
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, "public/uploads/"),
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname);
+    cb(null, Date.now() + "-" + file.fieldname + ext);
   }
 });
 
-// @desc    Get single product by ID
-// @route   GET /api/products/:id
-// @desc    Get single product by ID
-// @route   GET /api/products/:id
-router.get('/:id', async (req, res) => {
-  try {
-    const product = await Product.findById(req.params.id)
-      .lean();
+const upload = multer({ storage });
 
-    if (!product) {
-      return res.status(404).json({ message: 'Product not found' });
-    }
+// =============================
+// Routes
+// =============================
 
-    // Optionally: fetch related products (same category, exclude self)
-    const related = await Product.find({
-      category: product.category,
-      _id: { $ne: product._id }
-    })
-      // .limit(4)
-      .lean();
+// Add product
+router.post(
+  "/",
+  checkAdminSession,
+  upload.fields([
+    { name: "mainImage", maxCount: 1 },
+    { name: "thumbnails", maxCount: 8 },
+    { name: "boxImages", maxCount: 12 }
+  ]),
+  productController.addProduct
+);
 
-    res.json({ product, related });
-  } catch (err) {
-    console.error("Error fetching product:", err);
-    res.status(500).json({ message: "Server error" });
-  }
-});
+// Update product
+router.put(
+  "/:id",
+  checkAdminSession,
+  upload.fields([
+    { name: "mainImage", maxCount: 1 },
+    { name: "thumbnails", maxCount: 8 },
+    { name: "boxImages", maxCount: 12 }
+  ]),
+  productController.updateProduct
+);
+
+// Delete product
+router.delete("/:id", checkAdminSession, productController.deleteProduct);
+
+// Get all products
+router.get("/", productController.getAllProducts);
+
+// Get Product by Id
+router.get('/slug/:slug', productController.getProductbySlug);
 
 
 module.exports = router;
